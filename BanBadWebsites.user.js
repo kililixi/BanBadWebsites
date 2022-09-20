@@ -42,7 +42,7 @@ GNU General Public License v3.0
     // 如果启用突出显示目标超链接，设置边框
     // 由于 CSS 的特性，有可能无法正确设置想要的区域
     // 示例：'solid 1px #CC0033'
-    var option_highlight_link_border = null;
+    var option_highlight_link_border = 'solid 1px #CC0033';
 
     // 如果启用突出显示目标超链接，设置下划线、上划线、贯穿删除线等样式
     // 由于 CSS 的特性，某些情况下无效
@@ -393,6 +393,11 @@ GNU General Public License v3.0
 
     var cursor_img = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAABj1BMVEX4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT4BlT////D56oEAAAAg3RSTlMAROOgDAAAAAyg40QARNX/+44LAACO+9VE4/////2QCwD//+Og+////5AK+6AMjv38k44MAAv//wD////8Cv+TCgAA/5MKAAAAAAALkP/8kAsAAAALkP3///2QCwAMjv3/jgyg+/////ug4////+NE1f/7jo77/9VEAETjoAwMoONEAJyONeEAAAABYktHRIRi0FpxAAAAB3RJTUUH4wEJAyMIrljkvAAAAOhJREFUGNNjYGBkYmZhZWNnZ2Pl4OTi5mHg5eMXEBQSFhERFhIV4xeXYJCUkpaRlZNXUJCXk5VRVFJmUFFVU9eQ1dTS0pTVUJfR1mHQ1dPXUNcwMDQ0AFKyRsYMJqZyQCkzc3MzIF9OiJXBQlhe08DM0srK0tpGU17YgoFdRMHW0NyqudnKzt7B0YkdScDZxdXN3YPB08vbB6LF188/IDCIITgkNAxiaHhEZFR0DENsXHwC1FqgSGISQ3JKahrMYeHpGZkMWdk5CKfn5OYx5BcUFhVDPFdSWlZewVBZVV1TC/F+XX1DYxMA6lI04KQBZEYAAAAldEVYdGRhdGU6Y3JlYXRlADIwMTktMDEtMDlUMDM6MzU6MDgrMDg6MDDq0TSKAAAAJXRFWHRkYXRlOm1vZGlmeQAyMDE5LTAxLTA5VDAzOjM1OjA4KzA4OjAwm4yMNgAAAEN0RVh0c29mdHdhcmUAL3Vzci9sb2NhbC9pbWFnZW1hZ2ljay9zaGFyZS9kb2MvSW1hZ2VNYWdpY2stNy8vaW5kZXguaHRtbL21eQoAAAAYdEVYdFRodW1iOjpEb2N1bWVudDo6UGFnZXMAMaf/uy8AAAAYdEVYdFRodW1iOjpJbWFnZTo6SGVpZ2h0ADUxMo+NU4EAAAAXdEVYdFRodW1iOjpJbWFnZTo6V2lkdGgANTEyHHwD3AAAABl0RVh0VGh1bWI6Ok1pbWV0eXBlAGltYWdlL3BuZz+yVk4AAAAXdEVYdFRodW1iOjpNVGltZQAxNTQ2OTc2MTA4Y0VIZwAAABF0RVh0VGh1bWI6OlNpemUANjcyN0L99mrAAAAAYnRFWHRUaHVtYjo6VVJJAGZpbGU6Ly8vaG9tZS93d3dyb290L25ld3NpdGUvd3d3LmVhc3lpY29uLm5ldC9jZG4taW1nLmVhc3lpY29uLmNuL2ZpbGVzLzExNy8xMTc1NzQ5LnBuZ54B8P8AAAAASUVORK5CYII=';
 
+    function getHostnameFormUrl(url) {
+        // use URL constructor and return hostname
+        return new URL(url).hostname;
+    }
+
     // modified from PAC
     function dnsDomainIs(host, domain) {
         if(domain[0] === '.'){
@@ -460,14 +465,48 @@ GNU General Public License v3.0
         }
     }
 
-    function ban_bad_websites(){
-        var links = document.getElementsByTagName('a');
-        for(var i = 0; i < links.length; i++){
-            let link = links[i];
-            if(!link.hasAttribute('phuker-banned')){
-                process(link);
+    function processDiv(div){
+        for(let type in hosts){
+            var h = hosts[type];
+            for(let i = 0; i < h.length; i++){
+
+                if(dnsDomainIs(getHostnameFormUrl(div.getAttribute('mu')), h[i])){
+                    ban_link(div, type)
+                    return
+                }
             }
         }
+        for(let type in urls){
+            var u = urls[type];
+            for(let i = 0; i < u.length; i++){
+                if(getHostnameFormUrl(div.getAttribute('mu')).startsWith(u[i])){
+                    ban_link(div, type)
+                    return
+                }
+            }
+        }
+    }
+
+    function ban_bad_websites(){
+        if(window.location.hostname !== 'www.baidu.com') {
+            var links = document.getElementsByTagName('a');
+
+            for(var i = 0; i < links.length; i++){
+                let link = links[i];
+                if(!link.hasAttribute('phuker-banned')){
+                    process(link);
+                }
+            }
+        } else {
+            var baiduResultDivs = document.querySelectorAll('.result.c-container');
+             for(var j = 0; j < baiduResultDivs.length; j++){
+                 let div = baiduResultDivs[j];
+                 if(!div.hasAttribute('phuker-banned')) {
+                    processDiv(div);
+                 }
+            }
+        }
+        
     }
     window.addEventListener('load', ban_bad_websites);
     setTimeout(ban_bad_websites, 3 * 1000);
