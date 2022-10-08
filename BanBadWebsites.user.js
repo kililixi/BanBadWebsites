@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Ban Bad Websites 标记/屏蔽机器翻译 SEO 垃圾网站
 // @namespace    https://greasyfork.org/zh-CN/scripts/389721-ban-bad-websites
-// @version      0.4.27
+// @version      0.4.28
 // @description  标记/禁用垃圾网站链接。主要针对机器翻译 Stack Overflow，爬虫采集站内容农场等 SEO 垃圾网站。
 // @author       Phuker
 // @match        *://*/*
@@ -63,6 +63,7 @@ GNU General Public License v3.0
 
     var hosts = {
         '爬虫采集 SEO 机器翻译垃圾网站': [
+            '5axxw.com',
             'codeday.me',
             'code.i-harness.com',
             'djcxy.com',
@@ -372,6 +373,7 @@ GNU General Public License v3.0
         '垃圾中文技术性网站': [
             'jb51.net',
             'www.csdn.net',
+            'ask.csdn.net',
             'blog.csdn.net',
             'yq.aliyun.com',
         ]
@@ -487,6 +489,22 @@ GNU General Public License v3.0
         }
     }
 
+    function processBaidu() {
+        var baiduResultDivs = document.querySelectorAll('.result.c-container');
+        for(var j = 0; j < baiduResultDivs.length; j++){
+            let div = baiduResultDivs[j];
+            if(!div.hasAttribute('phuker-banned')) {
+                processDiv(div);
+            }
+        }
+    }
+
+    function handleBaiduClick(evt) {
+        console.log('click')
+        setTimeout(processBaidu, 3 * 1000);
+        setTimeout(processBaidu, 10 * 1000);
+    }
+
     function ban_bad_websites(){
         if(window.location.hostname !== 'www.baidu.com') {
             var links = document.getElementsByTagName('a');
@@ -498,15 +516,10 @@ GNU General Public License v3.0
                 }
             }
         } else {
-            var baiduResultDivs = document.querySelectorAll('.result.c-container');
-             for(var j = 0; j < baiduResultDivs.length; j++){
-                 let div = baiduResultDivs[j];
-                 if(!div.hasAttribute('phuker-banned')) {
-                    processDiv(div);
-                 }
-            }
+            processBaidu()
+            document.getElementById('su').removeEventListener('click', handleBaiduClick)
+            document.getElementById('su').addEventListener('click', handleBaiduClick)
         }
-        
     }
     window.addEventListener('load', ban_bad_websites);
     setTimeout(ban_bad_websites, 3 * 1000);
